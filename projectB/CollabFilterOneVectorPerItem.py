@@ -24,7 +24,7 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
     ''' One-vector-per-user, one-vector-per-item recommendation model.
 
     Assumes each user, each item has learned vector of size `n_factors`.
-
+    
     Attributes required in param_dict
     ---------------------------------
     mu : 1D array of size (1,)
@@ -38,6 +38,7 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
     Inherits *__init__** constructor from AbstractBaseCollabFilterSGD.
     Inherits *fit* method from AbstractBaseCollabFilterSGD.
     '''
+    
 
     def init_parameter_dict(self, n_users, n_items, train_tuple):
         ''' Initialize parameter dictionary attribute for this instance.
@@ -55,10 +56,10 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
         # TIP: use self.n_factors to access number of hidden dimensions
         self.param_dict = dict(
             mu=ag_np.ones(1),
-            b_per_user=ag_np.ones(1), # FIX dimensionality
-            c_per_item=ag_np.ones(1), # FIX dimensionality
-            U=0.001 * random_state.randn(1), # FIX dimensionality
-            V=0.001 * random_state.randn(1), # FIX dimensionality
+            b_per_user=ag_np.ones(n_users), # FIX dimensionality
+            c_per_item=ag_np.ones(n_items), # FIX dimensionality
+            U=0.001 * random_state.randn(n_users, self.n_factors), # FIX dimensionality
+            V=0.001 * random_state.randn(n_items, self.n_factors), # FIX dimensionality
             )
 
 
@@ -80,9 +81,15 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
             Scalar predicted ratings, one per provided example.
             Entry n is for the n-th pair of user_id, item_id values provided.
         '''
-        # TODO: Update with actual prediction logic
-        N = user_id_N.size
-        yhat_N = ag_np.ones(N)
+    # Compute predictions
+
+        yhat_N = (
+            mu + 
+            b_per_user[user_id_N] +
+            c_per_item[item_id_N] +
+            ag_np.sum(U[user_id_N] * V[item_id_N], axis=1)
+        )
+        print(type(yhat_N))
         return yhat_N
 
 
@@ -103,7 +110,12 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
         # TIP: use self.alpha to access regularization strength
         y_N = data_tuple[2]
         yhat_N = self.predict(data_tuple[0], data_tuple[1], **param_dict)
-        loss_total = 0.0
+        V = param_dict['V']
+        U = param_dict['U']
+        loss_total = (self.alpha * (
+        ag_np.sum(V** 2) +
+        ag_np.sum(U ** 2)) +
+        ag_np.sum((y_N - yhat_N) ** 2))
         return loss_total    
 
 
