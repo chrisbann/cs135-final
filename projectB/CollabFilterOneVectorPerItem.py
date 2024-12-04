@@ -89,7 +89,6 @@ class CollabFilterOneVectorPerItem(AbstractBaseCollabFilterSGD):
             c_per_item[item_id_N] +
             ag_np.sum(U[user_id_N] * V[item_id_N], axis=1)
         )
-        print(type(yhat_N))
         return yhat_N
 
 
