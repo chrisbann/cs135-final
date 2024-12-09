@@ -81,5 +81,5 @@ def load_train_valid_test_datasets(
 
     return (
         train_data_tuple, valid_data_tuple, test_data_tuple,
-        total_n_users, total_n_items)
+        all_data_tuple, total_n_users, total_n_items)
 
