@@ -2,21 +2,22 @@ import numpy as np
 import tensorflow as tf
 from sklearn.metrics import mean_squared_error, mean_absolute_error
 
+# Modify NCFModel
 class NCFModel(tf.keras.Model):
     def __init__(self, user_embedding_dim, item_embedding_dim, dense_units):
         super(NCFModel, self).__init__()
-        # Define user and item dense layers
-        self.user_dense = tf.keras.layers.Dense(user_embedding_dim, activation='relu')
-        self.item_dense = tf.keras.layers.Dense(item_embedding_dim, activation='relu')
-        # Fully connected layers for interaction
-        self.fc1 = tf.keras.layers.Dense(dense_units, activation='relu')
-        self.fc2 = tf.keras.layers.Dense(dense_units // 2, activation='relu')
-        self.output_layer = tf.keras.layers.Dense(1, activation='linear')  # Rating prediction
-
-        # Save constructor arguments for serialization
+        # Save constructor arguments as attributes
         self.user_embedding_dim = user_embedding_dim
         self.item_embedding_dim = item_embedding_dim
         self.dense_units = dense_units
+
+        # Define model layers
+        self.user_dense = tf.keras.layers.Dense(user_embedding_dim, activation='relu')
+        self.item_dense = tf.keras.layers.Dense(item_embedding_dim, activation='relu')
+        self.fc1 = tf.keras.layers.Dense(dense_units, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01))
+        self.fc2 = tf.keras.layers.Dense(dense_units // 2, activation='relu', kernel_regularizer=tf.keras.regularizers.l2(0.01))
+        self.dropout = tf.keras.layers.Dropout(0.2)
+        self.output_layer = tf.keras.layers.Dense(1, activation='linear')
 
     def call(self, inputs):
         user_input, item_input = inputs
@@ -24,11 +25,12 @@ class NCFModel(tf.keras.Model):
         item_features = self.item_dense(item_input)
         combined = tf.concat([user_features, item_features], axis=1)
         x = self.fc1(combined)
+        x = self.dropout(x)
         x = self.fc2(x)
         return self.output_layer(x)
 
     def get_config(self):
-        # Serialize constructor arguments
+        # Serialize constructor arguments for saving
         return {
             "user_embedding_dim": self.user_embedding_dim,
             "item_embedding_dim": self.item_embedding_dim,
@@ -39,6 +41,7 @@ class NCFModel(tf.keras.Model):
     def from_config(cls, config):
         # Deserialize the model from its config
         return cls(**config)
+
 
 
 

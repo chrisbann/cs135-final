@@ -31,7 +31,7 @@ print("valid_data[1].shape (ratings):", valid_data[1].shape)
 # Extract embedding dimensions
 user_embedding_dim = user_embeddings.shape[1]
 item_embedding_dim = item_embeddings.shape[1]
-dense_units = 128
+dense_units = 256
 
 # Define the NCF model
 ncf_model = NCFModel(user_embedding_dim, item_embedding_dim, dense_units)
@@ -42,7 +42,7 @@ train_ncf_model(
     ncf_model,
     train_data=train_data,  # (user_features, item_features), ratings
     valid_data=valid_data,  # (user_features, item_features), ratings
-    epochs=10,
+    epochs=50,
     batch_size=32
 )
 
