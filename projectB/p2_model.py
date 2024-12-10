@@ -1,6 +1,9 @@
 import numpy as np
 from train_valid_test_loader import load_train_valid_test_datasets
 from sklearn.metrics import mean_squared_error
+
+from ncf_model import NCFModel, prepare_features_labels, train_ncf_model, evaluate_ncf_model
+
 # Load datasets
 train_tuple, valid_tuple, test_tuple, all_tuple, n_users, n_items = load_train_valid_test_datasets()
 
@@ -29,7 +32,13 @@ def prepare_features_labels(data_tuple, user_embeddings, item_embeddings):
     
     return X, y
 
-# Prepare training, validation, and test data
+# Prepare features and labels for NCF
 X_train, y_train = prepare_features_labels(train_tuple, user_embeddings, item_embeddings)
 X_valid, y_valid = prepare_features_labels(valid_tuple, user_embeddings, item_embeddings)
 X_test, y_test = prepare_features_labels(test_tuple, user_embeddings, item_embeddings)
+
+# Combine embeddings into tuples
+train_data = (X_train, y_train)
+valid_data = (X_valid, y_valid)
+test_data = (X_test, y_test)
+
