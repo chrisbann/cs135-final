@@ -27,7 +27,6 @@ param_grid = {
     "lr_all": [0.004, 0.005],
     "reg_all": [0.4, 0.],
 }
-}
 
 # Perform grid search
 gs = GridSearchCV(SVD, param_grid, measures=["rmse", "mae"], cv=5)
